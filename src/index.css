@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: "Optimistic VF", Montserrat, Helvetica, Arial, "Noto Sans", sans-serif;
+  }
+
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-family: "Optimistic VF", Montserrat, Helvetica, Arial, "Noto Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.16px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Form control defaults */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  /* DESIGN-meta.md Heading Styles with ss01, ss02 */
+  h1, h2, h3, h4, h5, h6 {
+    font-feature-settings: "ss01", "ss02";
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.28;
+    color: #0a1317;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 300;
+    line-height: 1.21;
+    color: #0a1317;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: #0a1317;
+  }
+
+  h4 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.44;
+    color: #0a1317;
+  }
+
+  h5 {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.50;
+    letter-spacing: -0.16px;
+    color: #0a1317;
+  }
+
+  h6 {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.43;
+    letter-spacing: -0.14px;
+    color: #0a1317;
+  }
+
+  p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: -0.16px;
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1c1e21;
+  }
+
+  table {
+    font-size: 14px;
+  }
+}
+
+@layer components {
+  /* Marketing primary button: Black pill */
+  .btn-marketing {
+    @apply inline-flex items-center justify-center font-bold text-sm text-on-ink-button bg-ink-button rounded-full px-[30px] py-[14px] hover:bg-charcoal active:bg-charcoal transition-colors disabled:bg-disabled-text disabled:cursor-not-allowed;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  /* Commerce buy CTA: Cobalt pill */
+  .btn-buy {
+    @apply inline-flex items-center justify-center font-bold text-sm text-on-primary bg-primary rounded-full px-[30px] py-[14px] hover:bg-primary-deep active:bg-primary-deep transition-colors disabled:bg-disabled-text disabled:cursor-not-allowed;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  /* Secondary button: Outlined ghost pill */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-bold text-sm text-ink-deep bg-transparent border-2 border-ink-deep rounded-full px-[28px] py-[12px] hover:bg-surface-soft active:bg-hairline-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  /* Ghost button: Light outlined pill */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center font-bold text-sm text-ink-deep bg-transparent border-2 border-hairline rounded-full px-[22px] py-[10px] hover:border-charcoal active:bg-surface-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  /* Category pill tab */
+  .btn-pill-tab {
+    @apply inline-flex items-center gap-2 text-sm font-bold text-ink bg-canvas border border-hairline rounded-full px-4 py-2 hover:border-slate transition-colors;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  .btn-pill-tab-active {
+    @apply inline-flex items-center gap-2 text-sm font-bold text-canvas bg-ink-deep border-transparent rounded-full px-4 py-2 shadow-subtle;
+    letter-spacing: -0.14px;
+    line-height: 1.43;
+  }
+
+  /* Circular icon button (40x40px, AA floor) */
+  .btn-icon-circular {
+    @apply w-10 h-10 rounded-full bg-canvas border border-hairline-soft text-ink flex items-center justify-center hover:bg-surface-soft active:bg-hairline-soft transition-colors disabled:opacity-50;
+  }
+
+  /* Standard text input (44px) */
+  .input-standard {
+    @apply w-full h-[44px] px-3.5 bg-canvas text-ink text-base border border-hairline rounded-lg focus:outline-none focus:border-2 focus:border-fb-blue transition-all placeholder:text-steel;
+    line-height: 1.5;
+  }
+
+  /* Search pill (40px) */
+  .search-pill-input {
+    @apply w-full h-[40px] pl-11 pr-24 bg-surface-soft text-ink text-sm rounded-full border border-transparent focus:border-hairline focus:bg-canvas focus:outline-none transition-all placeholder:text-steel;
+  }
+
+  /* Card variations */
+  .card-feature {
+    @apply bg-canvas rounded-xxxl p-8 border border-hairline-soft;
+  }
+
+  .card-photo {
+    @apply bg-canvas rounded-xxxl p-0 border-none overflow-hidden;
+  }
+
+  .card-promo {
+    @apply bg-ink-deep text-canvas rounded-xxxl p-8 sm:p-16;
+  }
+
+  .card-summary {
+    @apply bg-canvas rounded-xl p-6 border border-hairline-soft shadow-sticky;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #ced0d4;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8595a4;
+}
+
+/* Hide scrollbar for clean horizontal pill bars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Continuous Running Marquee Banner (Ticker chạy ngang liên tục) */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-smooth {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-scroll 26s linear infinite;
+}
+
+.animate-marquee-smooth:hover {
+  animation-play-state: paused;
+}
