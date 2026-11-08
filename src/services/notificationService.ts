@@ -1,4 +1,8 @@
 import { NotificationItem } from '../types/notification';
+import { apiClient } from './apiClient';
+import { hasSession, mockFallbackEnabled, unwrapData, warnFallback } from './apiHelpers';
+import { mapNotification } from './mappers/notificationMapper';
+import { listOf, totalPagesOf } from './mappers/utils';
 
 // Mock seed notifications for demo and development
 // Phân tách theo userId để bảo mật và toàn vẹn dữ liệu
@@ -78,6 +82,11 @@ const getStoredNotifications = (): NotificationItem[] => {
   }
 };
 
+const PAGE_SIZE = 50;
+const MAX_PAGES = 5;
+// Id cac thong bao chua doc o lan tai gan nhat tu API (API chua co endpoint "doc tat ca" nen duyet tung id)
+let unreadIdsFromApi: number[] = [];
+
 const saveNotifications = (items: NotificationItem[]) => {
   try {
     localStorage.setItem(STORAGE_NOTIF_KEY, JSON.stringify(items));
@@ -87,15 +96,33 @@ const saveNotifications = (items: NotificationItem[]) => {
 };
 
 /**
- * Service Abstraction cho Trung tâm Thông báo (Notifications Center)
- * Hỗ trợ mock adapter và sẵn sàng chuyển đổi RESTful API:
- * - GET    /api/notifications
- * - PATCH  /api/notifications/:id/read
- * - PATCH  /api/notifications/read-all
- * - DELETE /api/notifications/:id
+ * Trung tâm Thông báo. THEO ĐẶC TẢ (backend chưa có NotificationsController; spec 13.3 / 13.4 chỉ có một dòng mô tả):
+ * - 13.3 GET   /notifications            -> getNotifications (khi có phiên đăng nhập thật)
+ * - 13.4 PATCH /notifications/{id}/read  -> markAsRead, markAllAsRead (gọi 13.4 cho từng thông báo chưa đọc)
+ * - Chưa có API xóa / tạo thông báo: deleteNotification và createNotification vẫn dùng dữ liệu mẫu cục bộ.
+ * Không có phiên đăng nhập thật (đăng nhập mẫu) hoặc backend lỗi + VITE_ENABLE_MOCK_FALLBACK -> dữ liệu mẫu.
  */
 export const notificationService = {
   async getNotifications(userId: number): Promise<NotificationItem[]> {
+    if (hasSession()) {
+      try {
+        const rows: NotificationItem[] = [];
+        for (let page = 1; page <= MAX_PAGES; page++) {
+          const res = await apiClient.get('/notifications', { params: { page, size: PAGE_SIZE } });
+          const body = unwrapData(res.data);
+          rows.push(...listOf(body).map(mapNotification));
+          if (page >= totalPagesOf(body)) break;
+        }
+        const items = rows
+          .map((n) => ({ ...n, userId: n.userId || userId }))
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        unreadIdsFromApi = items.filter((n) => !n.isRead).map((n) => n.notificationId);
+        return items;
+      } catch (e) {
+        if (!mockFallbackEnabled()) throw e;
+        warnFallback('getNotifications', e);
+      }
+    }
     // Giả lập network latency 100ms
     await new Promise(r => setTimeout(r, 100));
     const all = getStoredNotifications();
@@ -105,6 +132,16 @@ export const notificationService = {
   },
 
   async markAsRead(notificationId: number): Promise<boolean> {
+    if (hasSession()) {
+      try {
+        await apiClient.patch(`/notifications/${notificationId}/read`);
+        unreadIdsFromApi = unreadIdsFromApi.filter((id) => id !== notificationId);
+        return true;
+      } catch (e) {
+        if (!mockFallbackEnabled()) throw e;
+        warnFallback('markAsRead', e);
+      }
+    }
     const all = getStoredNotifications();
     const updated = all.map(n => n.notificationId === notificationId? {...n, isRead: true }: n);
     saveNotifications(updated);
@@ -112,6 +149,14 @@ export const notificationService = {
   },
 
   async markAllAsRead(userId: number): Promise<boolean> {
+    if (hasSession() && unreadIdsFromApi.length > 0) {
+      const ids = [...unreadIdsFromApi];
+      const results = await Promise.allSettled(ids.map((id) => apiClient.patch(`/notifications/${id}/read`)));
+      unreadIdsFromApi = ids.filter((_, i) => results[i].status === 'rejected');
+      if (unreadIdsFromApi.length === 0) return true;
+      if (!mockFallbackEnabled()) throw new Error('Không thể đánh dấu đã đọc toàn bộ thông báo.');
+      warnFallback('markAllAsRead', results.find((r) => r.status === 'rejected'));
+    }
     const all = getStoredNotifications();
     const updated = all.map(n => n.userId === userId? {...n, isRead: true }: n);
     saveNotifications(updated);
